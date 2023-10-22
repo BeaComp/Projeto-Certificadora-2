@@ -1,10 +1,13 @@
 import tkinter as tk
-from queue import Queue
 import time
+import matplotlib.pyplot as plt
+from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
+from queue import Queue
 
 class CarrinhoMRU:
-    def __init__(self, canvas, velocidade, intervalo_tempo):
+    def __init__(self, canvas, grafico_window, velocidade, intervalo_tempo):
         self.canvas = canvas
+        self.grafico_window = grafico_window
         self.velocidade = velocidade
         self.intervalo_tempo = intervalo_tempo
         self.tempo = 0
@@ -14,19 +17,26 @@ class CarrinhoMRU:
         self.régua = None
         self.posicao_final = None
         self.tempo_label = None
-        self.queue = Queue()
+        self.posicoes = Queue()  # Fila para armazenar as posições ao longo do tempo
+        self.fig, self.ax = plt.subplots()
+        self.canvas_widget = FigureCanvasTkAgg(self.fig, master=self.grafico_window)
+        self.canvas_widget.get_tk_widget().pack()
+        
+    
 
     def criar_carrinho(self):
         x0, y0 = self.posicao - self.raio, 100 - self.raio
         x1, y1 = self.posicao + self.raio, 100 + self.raio
         self.carrinho = self.canvas.create_oval(x0, y0, x1, y1, fill="blue")
 
+    
     def criar_régua(self):
         self.régua = self.canvas.create_line(0, 120, 900, 120, fill="black", width=2)
         for i in range(21):
             x = 50 + i * 50
             self.canvas.create_line(x, 115, x, 125, fill="black")
             self.canvas.create_text(x, 130, text=str(i * 0.5 + 0.5), fill="black")
+    
 
     def criar_posicao_final(self):
         self.posicao_final = tk.Label(self.canvas, text="", font=("Arial", 12))
@@ -48,8 +58,11 @@ class CarrinhoMRU:
         x0, y0 = self.posicao - self.raio, 100 - self.raio
         x1, y1 = self.posicao + self.raio, 100 + self.raio
         self.canvas.coords(self.carrinho, x0, y0, x1, y1)
+        self.posicoes.put(self.posicao)
         self.atualizar_posicao_final()
         self.atualizar_tempo_label(self.tempo)
+        self.plot_grafico()
+
 
     def simular_movimento(self, tempo_simulacao):
         while self.tempo < tempo_simulacao:
@@ -59,8 +72,8 @@ class CarrinhoMRU:
             time.sleep(self.intervalo_tempo)
 
     def resetar_simulacao(self):
-        while not self.queue.empty():
-            self.queue.get()  # Limpa a fila
+        while not self.posicoes.empty():
+            self.posicoes.get()  # Limpa a fila
         self.tempo = 0
         self.posicao = 0
         self.canvas.delete(self.carrinho)
@@ -71,11 +84,27 @@ class CarrinhoMRU:
             self.posicao_final.config(text="")
         if self.tempo_label:
             self.tempo_label.config(text="")
+        # Reinicialize o gráfico
+        self.fig, self.ax = plt.subplots()
+        self.canvas_widget.get_tk_widget().pack()
+        self.canvas_widget.get_tk_widget().destroy()
+        
+    
+
+    def plot_grafico(self):
+        self.ax.clear()
+        posicoes = list(self.posicoes.queue)  # Converter a fila em uma lista para plotagem
+        self.ax.plot(range(len(posicoes)), posicoes)
+        self.ax.set_xlabel("Tempo (s)")
+        self.ax.set_ylabel("Posição (m)")
+        self.ax.set_title("Gráfico MRU")
+        self.canvas_widget.draw()    # Atualize o widget do gráfico
+
 
     def verificar_tempo(self, posicao_desejada):
-        if not self.queue.empty():
-            while not self.queue.empty():
-                posicao, tempo = self.queue.get()
+        if not self.posicoes.empty():
+            while not self.posicoes.empty():
+                posicao, tempo = self.posicoes.get()
                 if posicao >= posicao_desejada:
                     self.atualizar_tempo_label(f"Tempo para posição {posicao_desejada}m: {tempo:.2f} s")
                     return
@@ -87,7 +116,7 @@ def simular():
     velocidade_constante = float(velocidade_entry.get())
     tempo_simulacao = float(tempo_entry.get())
     
-    carrinho = CarrinhoMRU(canvas, velocidade_constante, 1)  # Intervalo de tempo de 1 segundo
+    carrinho = CarrinhoMRU(canvas, grafico_window, velocidade_constante, 1)  # Intervalo de tempo de 1 segundo
     carrinho.criar_carrinho()
     carrinho.criar_régua()
     carrinho.criar_posicao_final()
@@ -121,7 +150,10 @@ posicao_entry = tk.Entry(root)
 simular_button = tk.Button(root, text="Simular", command=simular)
 reset_button = tk.Button(root, text="Reset", command=resetar)
 verificar_button = tk.Button(root, text="Verificar Tempo", command=verificar_tempo)
-canvas = tk.Canvas(root, width=900, height=200)
+grafico_window = tk.Toplevel(root)
+grafico_window.title("Gráfico MRU")
+grafico_window.geometry("600x400")
+canvas = tk.Canvas(root, width=900, height=250)
 
 # Posicionamento dos elementos na interface
 velocidade_label.pack(pady=5)
