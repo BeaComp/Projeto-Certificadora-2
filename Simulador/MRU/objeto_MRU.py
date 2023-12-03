@@ -18,7 +18,7 @@ class CarrinhoMRU:  # Classe que inicia as propriedades do carrinho e do simulad
         self.posicao_final = None
         self.tempo_label = None
         self.posicoes = Queue()  # Fila para armazenar as posições ao longo do tempo
-        self.fig, self.ax = plt.subplots()
+        self.fig, self.ax = plt.subplots(figsize=(7, 4))
         self.canvas_widget = FigureCanvasTkAgg(self.fig, master=self.grafico_window)
         self.canvas_widget.get_tk_widget().pack()
         
@@ -39,12 +39,13 @@ class CarrinhoMRU:  # Classe que inicia as propriedades do carrinho e do simulad
     
 
     def criar_posicao_final(self): #Função para criar a label 
-        self.posicao_final = tk.Label(self.canvas, text="", font=("Arial", 12))
-        self.canvas.create_window(450, 160, window=self.posicao_final)
+        if not self.posicao_final:
+            self.posicao_final = tk.Label(self.canvas, text="", font=("Arial", 10))
+            self.canvas.create_window(450, 160, window=self.posicao_final)
     
     def criar_tempo_label(self): #Função para criar a label 
         if not self.tempo_label:
-            self.tempo_label = tk.Label(self.canvas, text="", font=("Arial", 12))
+            self.tempo_label = tk.Label(self.canvas, text="", font=("Arial", 10))
             self.canvas.create_window(450, 190, window=self.tempo_label)
 
     def atualizar_posicao_final(self): #Fica aparecendo a posição na tela
@@ -61,6 +62,7 @@ class CarrinhoMRU:  # Classe que inicia as propriedades do carrinho e do simulad
         x1, y1 = self.posicao + self.raio, 100 + self.raio
         self.canvas.coords(self.carrinho, x0, y0, x1, y1)
         self.posicoes.put(self.posicao)
+        self.criar_posicao_final()
         self.atualizar_posicao_final() #Atualizar o rótulo que exibe a posição final do carrinho na interface gráfica.
         self.atualizar_tempo_label(self.tempo) #Atualizar o rótulo que exibe a tempo do carrinho na interface gráfica.
         self.plot_grafico() #Plota o gráfico que mostra a posição do carrinho ao longo do tempo
@@ -81,7 +83,9 @@ class CarrinhoMRU:  # Classe que inicia as propriedades do carrinho e do simulad
             self.posicoes.get()  # Limpa a fila
         self.tempo = 0
         self.posicao = 0
-        self.canvas.delete(self.carrinho)
+        
+        if self.carrinho:
+            self.canvas.delete(self.carrinho)
         
         # Limpar a posição final
         if self.posicao_final:
@@ -89,13 +93,11 @@ class CarrinhoMRU:  # Classe que inicia as propriedades do carrinho e do simulad
         if self.tempo_label:
             self.tempo_label.config(text="")
 
-        # Reinicialize o gráfico
+        # # Reinicialize o gráfico
         self.fig, self.ax = plt.subplots()
         self.canvas_widget.get_tk_widget().pack()
         self.canvas_widget.get_tk_widget().destroy()
         
-    
-
     def plot_grafico(self): #Essa função cria o gráfico
         self.ax.clear() #Essa linha de código limpa o gráfico atual, removendo qualquer plotagem anterior
         posicoes = list(self.posicoes.queue)  # Converter a fila em uma lista para plotagem
