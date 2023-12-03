@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 from queue import Queue
 
-class CarrinhoMRU:  ##Classe que inicia as propriedades do carrinho e do simulador (obs: vou dividir em duas classes: info do carrinho e infos da interface)
+class CarrinhoMRU:  # Classe que inicia as propriedades do carrinho e do simulador (obs: vou dividir em duas classes: info do carrinho e infos da interface)
     def __init__(self, canvas, grafico_window, velocidade, intervalo_tempo):
         self.canvas = canvas
         self.grafico_window = grafico_window
@@ -22,7 +22,7 @@ class CarrinhoMRU:  ##Classe que inicia as propriedades do carrinho e do simulad
         self.canvas_widget = FigureCanvasTkAgg(self.fig, master=self.grafico_window)
         self.canvas_widget.get_tk_widget().pack()
         
-    
+    # Funções para criar a bolinha ('carrinho'), os itens do gráfico e simular o movimento
 
     def criar_carrinho(self): # Cria a bolinha, que simboliza o carrinho
         x0, y0 = self.posicao - self.raio, 100 - self.raio
@@ -30,7 +30,7 @@ class CarrinhoMRU:  ##Classe que inicia as propriedades do carrinho e do simulad
         self.carrinho = self.canvas.create_oval(x0, y0, x1, y1, fill="blue")
 
     
-    def criar_régua(self): #Função para criar a labelregua 
+    def criar_regua(self): #Função para criar a labelregua 
         self.régua = self.canvas.create_line(0, 120, 900, 120, fill="black", width=2)
         for i in range(21):
             x = 50 + i * 50
@@ -51,6 +51,7 @@ class CarrinhoMRU:  ##Classe que inicia as propriedades do carrinho e do simulad
         self.posicao_final.config(text=f"Posição Final: {self.posicao:.2f} metros")
 
     def atualizar_tempo_label(self, tempo): #Fica aparecendo o tempo na tela
+        tempo = tempo + 1
         self.tempo_label.config(text="Tempo: {:.2f} s".format(tempo))
 
 
@@ -107,14 +108,14 @@ class CarrinhoMRU:  ##Classe que inicia as propriedades do carrinho e do simulad
 
 #O widget é criado com FigureCanvasTkAgg e essa função draw() é usada para garantir que o gráfico seja exibido na interface.
 
-    def verificar_tempo(self, posicao_desejada): #Precisa ser arrumada
-        if not self.posicoes.empty():
-            while not self.posicoes.empty():
-                posicao, tempo = self.posicoes.get()
-                if posicao >= posicao_desejada:
-                    self.atualizar_tempo_label(f"Tempo para posição {posicao_desejada}m: {tempo:.2f} s")
-                    return
-        self.atualizar_tempo_label("Posição não alcançada durante a simulação")
+    # def verificar_tempo(self, posicao_desejada): #Precisa ser arrumada
+    #     if not self.posicoes.empty():
+    #         while not self.posicoes.empty():
+    #             posicao, tempo = self.posicoes.get()
+    #             if posicao >= posicao_desejada:
+    #                 self.atualizar_tempo_label(f"Tempo para posição {posicao_desejada}m: {tempo:.2f} s")
+    #                 return
+    #     self.atualizar_tempo_label("Posição não alcançada durante a simulação")
 
 
 def simular(): ##Essa função irá ser chamada quando clicar no botão "simular" na interface
@@ -124,7 +125,7 @@ def simular(): ##Essa função irá ser chamada quando clicar no botão "simular
     
     carrinho = CarrinhoMRU(canvas, grafico_window, velocidade_constante, 1)  # Intervalo de tempo de 1 segundo
     carrinho.criar_carrinho()
-    carrinho.criar_régua()
+    carrinho.criar_regua()
     carrinho.criar_posicao_final()
     carrinho.criar_tempo_label()
     carrinho.simular_movimento(tempo_simulacao)
@@ -134,15 +135,14 @@ def resetar(): #A função resetar é chamada quando o botão "Reset" na interfa
 
 # Função resetar: é responsável por redefinir a simulação, limpar a fila de posições, reiniciar o tempo e a posição, apagar o carrinho da tela e limpar as entradas de texto na interface. Também recria o gráfico para uma nova simulação.
 
-def verificar_tempo(): #Essa função ainda precisa ser arrumada
-    if not carrinho:
-        return
-    try:
-        posicao_desejada = float(posicao_entry.get())
-        carrinho.verificar_tempo(posicao_desejada)
-    except ValueError:
-        carrinho.atualizar_tempo_label("Digite uma posição válida")
-
+# def verificar_tempo(): #Essa função ainda precisa ser arrumada
+#     if not carrinho:
+#         return
+#     try:
+#         posicao_desejada = float(posicao_entry.get())
+#         carrinho.verificar_tempo(posicao_desejada)
+#     except ValueError:
+#         carrinho.atualizar_tempo_label("Digite uma posição válida")
 
 # Configuração da janela principal
 root = tk.Tk()
@@ -157,7 +157,7 @@ posicao_label = tk.Label(root, text="Posição desejada (m):")
 posicao_entry = tk.Entry(root)
 simular_button = tk.Button(root, text="Simular", command=simular)
 reset_button = tk.Button(root, text="Reset", command=resetar)
-verificar_button = tk.Button(root, text="Verificar Tempo", command=verificar_tempo)
+# verificar_button = tk.Button(root, text="Verificar Tempo", command=verificar_tempo)
 grafico_window = tk.Toplevel(root)
 grafico_window.title("Gráfico MRU")
 grafico_window.geometry("600x400")
@@ -172,7 +172,7 @@ simular_button.pack(pady=10)
 reset_button.pack(pady=10)
 posicao_label.pack()
 posicao_entry.pack()
-verificar_button.pack(pady=5)
+# verificar_button.pack(pady=5)
 canvas.pack()
 
 root.mainloop()
