@@ -114,7 +114,7 @@ class CarrinhoMRU:  # Classe que inicia as propriedades do carrinho e do simulad
         num_pontos_grafico = min(len(posicoes), 100)
 
         # Calcule os tempos para o gráfico usando linspace
-        tempos_grafico = np.linspace(0, tempo_simulacao + 0.5, num_pontos_grafico, endpoint=False)
+        tempos_grafico = np.linspace(0, tempo_simulacao, num_pontos_grafico)
 
         # Plotar o gráfico usando os tempos do gráfico e as posições reais
         self.ax.plot(tempos_grafico, posicoes[:num_pontos_grafico])
