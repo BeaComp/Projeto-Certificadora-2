@@ -57,7 +57,7 @@ class QuedaLivre:
         while not self.alturas.empty():
             self.alturas.get()  # Limpa a fila
         self.tempo = 0
-        self.altura = self.altura_inicial
+        self.altura = 0
         if self.altura_final_label:
             self.altura_final_label.config(text="")
         if self.tempo_label:
