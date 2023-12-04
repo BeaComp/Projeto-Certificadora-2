@@ -32,6 +32,7 @@ def simulacaoMRU(frame):
                 carrinho.criar_regua()
                 carrinho.criar_posicao_final()
                 carrinho.criar_tempo_label()
+                carrinho.criar_velocidade_label()
                 carrinho.simular_movimento(tempo_simulacao)
         except Exception as e:
             # Trate qualquer outra exceção que possa ocorrer durante a inicialização do carrinho

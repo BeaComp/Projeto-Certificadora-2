@@ -20,6 +20,7 @@ class CarrinhoMRU:  # Classe que inicia as propriedades do carrinho e do simulad
         self.régua = None
         self.posicao_final = None
         self.tempo_label = None
+        self.velocidade_label = None
         self.aceleracao = None
         self.posicoes = Queue()  # Fila para armazenar as posições ao longo do tempo
         self.fig, self.ax = plt.subplots(figsize=(7, 4))
@@ -53,6 +54,14 @@ class CarrinhoMRU:  # Classe que inicia as propriedades do carrinho e do simulad
         if not self.tempo_label:
             self.tempo_label = tk.Label(self.canvas, text="", font=("Arial", 11))
             self.canvas.create_window(450, 190, window=self.tempo_label)
+    
+    def criar_velocidade_label(self): #Função para criar a label 
+        if not self.velocidade_label:
+            self.velocidade_label = tk.Label(self.canvas, text="", font=("Arial", 11))
+            self.canvas.create_window(750, 190, window=self.velocidade_label)
+
+    def atualizar_velocidade_final(self, velocidade): #Fica aparecendo a posição na tela
+        self.velocidade_label.config(text="Velocidade: {} m/s".format(velocidade))
 
     def atualizar_posicao_final(self): #Fica aparecendo a posição na tela
         self.posicao_final.config(text=f"Posição Final: {self.posicao:.2f} metros")
@@ -60,7 +69,6 @@ class CarrinhoMRU:  # Classe que inicia as propriedades do carrinho e do simulad
 
 
     def atualizar_tempo_label(self, tempo): #Fica aparecendo o tempo na tela
-        # tempo = tempo + 1
         self.tempo_label.config(text="Tempo: {:.2f} s".format(tempo))
 
 
@@ -68,11 +76,13 @@ class CarrinhoMRU:  # Classe que inicia as propriedades do carrinho e do simulad
         self.posicao += self.velocidade * self.intervalo_tempo
         x0, y0 = self.posicao - self.raio, 100 - self.raio
         x1, y1 = self.posicao + self.raio, 100 + self.raio
+        velocidade_entrada = int(self.velocidade)
         self.canvas.coords(self.carrinho, x0, y0, x1, y1)
         self.posicoes.put(self.posicao)
         self.criar_posicao_final()
         self.atualizar_posicao_final() #Atualizar o rótulo que exibe a posição final do carrinho na interface gráfica.
         self.atualizar_tempo_label(self.tempo + 1) #Atualizar o rótulo que exibe a tempo do carrinho na interface gráfica.
+        self.atualizar_velocidade_final(velocidade_entrada)
         self.plot_grafico(tempo_simulacao) #Plota o gráfico que mostra a posição do carrinho ao longo do tempo
 
 
@@ -98,6 +108,10 @@ class CarrinhoMRU:  # Classe que inicia as propriedades do carrinho e do simulad
             self.posicao_final.config(text="")
         if self.tempo_label:
             self.tempo_label.config(text="")
+        if self.velocidade_label:
+           self.velocidade_label.config(text="")
+        if self.aceleracao:
+            self.aceleracao.config(text="")
 
         # # Reinicialize o gráfico
         self.fig, self.ax = plt.subplots()
