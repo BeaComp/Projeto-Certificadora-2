@@ -62,7 +62,7 @@ class QuedaLivre:
     def mover_objeto(self):
         g = 9.81  # Aceleração devido à gravidade (m/s^2)
         self.altura2 = self.altura_inicial - (0.5 * g * self.tempo**2)
-        if self.altura2 > 0:
+        if self.altura2 >= 0:
             self.altura = self.altura2
             self.alturas.put(self.altura)
             self.atualizar_altura_final()
@@ -70,8 +70,9 @@ class QuedaLivre:
             self.atualizar_aceleracao_label()
             self.atualizar_velocidade_label(self.tempo)
             self.plot_grafico()
-        else:
-           self.altura = 0
+        
+
+
             
     def simular_queda(self):
         while self.altura >= 0:
@@ -86,9 +87,9 @@ class QuedaLivre:
 
         self.intervalo_tempo = 0
         self.altura_inicial = 0
+        self.altura_final_label.config(text="")
 
-        if self.altura_final_label:
-            self.altura_final_label.config(text="")
+        
         if self.tempo_label:
             self.tempo_label.config(text="")
         if self.aceleracao_label:
