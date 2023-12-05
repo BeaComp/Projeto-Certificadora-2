@@ -49,7 +49,6 @@ def simulacaoMRU(frame):
     tempo_label = tk.Label(frame_controles, text="Tempo de Simulação (s):")
     tempo_entry = tk.Entry(frame_controles)
     simular_button = tk.Button(frame_controles, text="Simular/Resetar", command=simular)
-    stop_button = tk.Button(frame_controles, text="Stop")
     grafico_window = tk.Canvas(frame_grafico)
     canvas = tk.Canvas(frame, width=1000, height=200)
 
@@ -59,7 +58,6 @@ def simulacaoMRU(frame):
     tempo_label.grid(row=1, column=0, pady=5)
     tempo_entry.grid(row=1, column=1)
     simular_button.grid(row=2, column=0, columnspan=2, pady=5)
-    stop_button.grid(row=3, column=0, columnspan=2, pady=5)
     grafico_window.grid(row=2, column=1)
 
 

@@ -18,10 +18,31 @@ class QuedaLivre:
         self.chao = None
         self.altura_final_label = None
         self.tempo_label = None
+        self.aceleracao_label = None
+        self.velocidade_label = None
         self.alturas = Queue()  # Fila para armazenar as alturas ao longo do tempo
         self.fig, self.ax = plt.subplots()
         self.canvas_widget = FigureCanvasTkAgg(self.fig, master=self.grafico_window)
         self.canvas_widget.get_tk_widget().pack()
+        
+    def criar_aceleracao_label(self):
+        if not self.aceleracao_label:
+            self.aceleracao_label = tk.Label(self.canvas, text="", font=("Arial", 12))
+            self.canvas.create_window(250, 220, window=self.aceleracao_label)
+
+    def atualizar_aceleracao_label(self):
+        self.aceleracao_label.config(text="Acelereção: 9.81 m/s²")
+    
+    def criar_velocidade_label(self):
+        if not self.velocidade_label:
+            self.velocidade_label = tk.Label(self.canvas, text="", font=("Arial", 12))
+            self.canvas.create_window(250, 250, window=self.velocidade_label)
+
+    def atualizar_velocidade_label(self, tempo):
+        g = 9.81
+        velocidade_final = g * tempo
+        self.velocidade_label.config(text=f"Velocidade Final: {velocidade_final:.2f} metros/s")
+    
 
     def criar_altura_final_label(self):
         self.altura_final_label = tk.Label(self.canvas, text="", font=("Arial", 12))
@@ -40,12 +61,18 @@ class QuedaLivre:
 
     def mover_objeto(self):
         g = 9.81  # Aceleração devido à gravidade (m/s^2)
-        self.altura = self.altura_inicial - (0.5 * g * self.tempo**2)
-        self.alturas.put(self.altura)
-        self.atualizar_altura_final()
-        self.atualizar_tempo_label(self.tempo)
-        self.plot_grafico()
-
+        self.altura2 = self.altura_inicial - (0.5 * g * self.tempo**2)
+        if self.altura2 > 0:
+            self.altura = self.altura2
+            self.alturas.put(self.altura)
+            self.atualizar_altura_final()
+            self.atualizar_tempo_label(self.tempo)
+            self.atualizar_aceleracao_label()
+            self.atualizar_velocidade_label(self.tempo)
+            self.plot_grafico()
+        else:
+           self.altura = 0
+            
     def simular_queda(self):
         while self.altura >= 0:
             self.mover_objeto()
@@ -56,12 +83,18 @@ class QuedaLivre:
     def resetar_simulacao(self):
         while not self.alturas.empty():
             self.alturas.get()  # Limpa a fila
-        self.tempo = 0
-        self.altura = 0
+
+        self.intervalo_tempo = 0
+        self.altura_inicial = 0
+
         if self.altura_final_label:
             self.altura_final_label.config(text="")
         if self.tempo_label:
             self.tempo_label.config(text="")
+        if self.aceleracao_label:
+            self.aceleracao_label.config(text="")
+        if self.velocidade_label:
+            self.velocidade_label.config(text="")
         # Reinicialize o gráfico
         self.fig, self.ax = plt.subplots()
         self.canvas_widget.get_tk_widget().pack()
